@@ -1,0 +1,7 @@
+
+Cards in deck {{deck}}<br/>
+<ul>
+{% for card in cards %}
+  <li><a href="{% url 'flashcards:card' card.id%}">{{card}}</a> - {{card.due|date:"m/d/Y"}}</li>
+{% endfor %}
+</ul>

@@ -1,0 +1,4 @@
+Front: {{card.front}}<br/>
+Back: {{card.back}}<br/>
+Deck:  <a href="{% url 'flashcards:deck' deck.id %}">{{deck}}<a><br/>
+Due: {{card.due|date:"m/d/Y"}}
