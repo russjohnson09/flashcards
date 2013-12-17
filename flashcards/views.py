@@ -1,11 +1,11 @@
 from django.shortcuts import render,get_object_or_404
 from flashcards.models import * #TODO specific imports
 from datetime import date
+from flashcards import utils
 
 
 def index(request):
-    upgrade()
-    #create_flashcards(10,5)
+    utils.populate()
     decks = Deck.objects.all()
     return render(request,'flashcards/index.html',{'decks':decks})
 
@@ -19,7 +19,8 @@ def deck(request, deck_id):
 
 def card(request, card_id):
     card = get_object_or_404(Card,pk=card_id)
-    return render(request,'flashcards/card.html',{'deck':card.deck,'card':card})
+    responses = Response.objects.filter(card=card)
+    return render(request,'flashcards/card.html',{'deck':card.deck,'card':card, 'responses':responses})
 
 """
 deck - number of decks
@@ -41,16 +42,21 @@ def create_flashcards(decks,cards):
 def create_cards(cards):
     card_list = []
     for i in cards:
-        c = Card(due=today,front='front'+str(i),back='back'+str(i),deck=d)
+        c = Card(due=today,added=today,front='front'+str(i),back='back'+str(i),deck=d)
         card_list.append(c)
     return card_list
+
+
     
+    
+
+"""
 def upgrade():
     today = date.today()
     for card in Card.objects.all():
         card.added = today
     card.save()
-
+"""
 
 #question get_object_or_404(Question, pk=qid)
 

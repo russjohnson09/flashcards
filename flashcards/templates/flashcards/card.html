@@ -1,4 +1,22 @@
 Front: {{card.front}}<br/>
 Back: {{card.back}}<br/>
 Deck:  <a href="{% url 'flashcards:deck' deck.id %}">{{deck}}<a><br/>
-Due: {{card.due|date:"m/d/Y"}}
+Due:
+{% if card.overdue %}
+    <span style="color:red">{{card.due|date:"m/d/Y"}}</span><br/>
+{% else %}
+    {{card.due|date:"m/d/Y"}}<br/>
+{% endif %}
+Correct: {{card.right}}<br/>
+Incorrect: {{card.wrong}}<br/>
+
+Responses: {{card.times_answered}}<br/>
+<ul>
+{% for response in responses %}
+    {% if response.correct %}
+        <li>{{response}}</li>
+    {% else %}
+        <li><span style="color:red">{{response}}</span></li>
+    {% endif %}
+{% endfor %}
+    

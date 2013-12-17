@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import date
 
 MAX_LENGTH = 25
 
@@ -16,10 +17,29 @@ class Card(models.Model):
     front = models.CharField(max_length=MAX_LENGTH)
     back = models.CharField(max_length=MAX_LENGTH)
     deck = models.ForeignKey('Deck')
-    #added = models.DateField()
+    added = models.DateField()
+    right = models.IntegerField()
+    wrong = models.IntegerField()
+    times_answered = models.IntegerField()
+
+    def overdue(self):
+        return self.due < date.today()
 
     def __unicode__(self):
         return self.front
+
+class Response(models.Model):
+    date = models.DateField()
+    correct = models.BooleanField()
+    card = models.ForeignKey('Card')
+
+    def __unicode__(self):
+        return self.date
+    
+    class Meta:
+        ordering = ['-date']
+
+
     
 
 """
