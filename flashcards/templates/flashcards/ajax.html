@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+
+    <script type='text/javascript' src='http://code.jquery.com/jquery-1.8.2.js'></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("button").click(function() {
+                    //alert( '{{ csrf_token }}');
+                    $.ajaxSetup({
+                        headers: { "X-CSRFToken": '{{ csrf_token }}' }
+                    });
+                    $.ajax({
+                        url : "flashcards/ajax",
+                        type : "POST",
+                        contentType: "appilcation/json",
+                        data : {
+                            client_response : "hello",
+                            },
+                            success : function(json) {
+                                //alert(json);
+                                //var obj = $.parseJSON(json);
+                                alert(json.mess);
+                                //alert(2);
+                            },
+                            error : function(xhr,errmsg,err) {
+                                alert("zz" + xhr.responseText);
+                                //alert(errmsg);
+                                //alert(err);
+                            }
+                    });
+                    return false;
+            });
+        });
+
+
+    </script>
+
+<button id="button">click</button>
+ 
+
+ <br/> <br/>
+Result: <br/>
+    <div id="result">
+    </div>
+ <br/> <br/>
+Error: <br/>
+    <div id="err">
+    </div>
+
+ 
+</body>
+</html>
+

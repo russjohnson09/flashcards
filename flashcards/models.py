@@ -1,5 +1,6 @@
 from django.db import models
 from datetime import date
+from django.core.urlresolvers import reverse
 
 MAX_LENGTH = 25
 
@@ -9,8 +10,12 @@ MAX_LENGTH = 25
 class Deck(models.Model):
     title = models.CharField(max_length=MAX_LENGTH)
     total_cards = models.IntegerField()
+
     def __unicode__(self):
         return self.title
+
+    def get_absolute_url(self):
+        return reverse('flashcards:deck', kwargs={'deck_id': self.id})
 
 class Card(models.Model):
     due = models.DateField()
