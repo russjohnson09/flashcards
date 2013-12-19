@@ -13,6 +13,6 @@ urlpatterns = patterns('',
     url('^upload/$', views.upload, name='upload'),
     url('^export/(?P<deck_id>\d+)/$', views.export, name='export'),
     url('^review/(?P<deck_id>\d+)/$', views.review, name='review'),
-    url('^ajax/', views.ajax, name='ajax'),
+    url('^ajax/$', views.ajax, name='ajax'),
     #url(r'^ajax_json/', views.ajax_json, name='ajax_json'),
 )

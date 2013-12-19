@@ -17,33 +17,24 @@ import json
 #http://jbjose.com/index.php/2013/07/tutorial-using-django-and-jquery/
 #http://hunterford.me/django-messaging-for-ajax-calls-using-jquery/
 
-@ensure_csrf_cookie#@csrf_exempt
+@ensure_csrf_cookie
 def ajax(request):
     if request.is_ajax() and request.method == 'POST':
+        title = request.POST['title']
         response = {}
-        response['mess'] = '1'
-        #return HttpResponse('{"mess":"Hello Ajax"}', content_type = "application/json")
-        #return HttpResponse('{h:1}',mimetype='application/javascript')
+        response['note'] = 'Saved Successfully'
+        response['note'] = title
+        return HttpResponse(json.dumps(response),content_type='application/json')
+        #else:
+            #return HttpResponse(json.dumps({'note':'Error'}),content_type='application/json')
+    elif request.is_ajax() and request.method == 'GET':
+        title = len(request.GET)
+        response = {}
+        response['note'] = 'Saved Successfully'
+        response['note'] = title
         return HttpResponse(json.dumps(response),content_type='application/json')
     else:
         return render(request,'flashcards/ajax.html')
-
-@csrf_exempt #TODO csrf shouldn't be null
-def ajax_json(request):
-    return HttpResponse(json.dumps({'server_response': 'hello'}),content_type='application/javascript')
-    #return HttpResponse(simplejson.dumps({'server_response':'1'}), content_type = "application/json")
-    #return HttpResponse(json.dumps({'server_response': 'hello'}), content_type='application/json') 
-    if request.POST.has_key('client_response'):
-        x = request.POST['client_response']
-        #y = socket.gethostbyname(x)
-        response_dict = {'server_response': x}
-        #response_dict.update({'server_response': x })
-        #return HttpResponse(simplejson.dumps(response_dict), mimetype='application/javascript')
-        return HttpResponse(json.dumps({'server_response': 'hello'}),content_type='application/javascript')
-    else:
-        pass
-        #return HttpResponse(mimetype='application/javascript')
-        #eturn render(request,'flashcards/ajax.html', context_instance=RequestContext(request))
 
 def test(request):
     return render(request,'')

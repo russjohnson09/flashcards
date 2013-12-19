@@ -8,48 +8,82 @@
     <script type='text/javascript' src='http://code.jquery.com/jquery-1.8.2.js'></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            $("button").click(function() {
-                    //alert( '{{ csrf_token }}');
+            $("#button").click(function() {
+                    //var title = $("#title").val();
+                    //if (title.length === 0) {
+                   //     $("#note").text("Title cannot be blank.");
+                   //     $("#note").fadeIn(400).delay(3000).fadeOut(400);
+                   //     return false;
+                    //}
+                    var token = getCookie('csrftoken');
+                    var json_var = {"csrfmiddlewaretoken":token,"title":"1213","X-CSRFToken":token};
+                    var args = {
+                        headers: { "X-CSRFToken": getCookie('csrftoken')},
+                        url : "",
+                        type : "POST",
+                       //contentType: "application/json", //need to serialize? 
+                       //http://stackoverflow.com/questions/6323338/jquery-ajax-posting-json-to-webservice
+                        data : json_var,
+                        success : function(json) {
+                            $("#note").text(json.note);
+                            $("#note").fadeIn(400).delay(3000).fadeOut(400);
+                        },
+                        error : function(xhr,errmsg,err) {
+                            alert("I am error:" + xhr.responseText);
+                        }
+                    }
+                    $.ajax(args);
+                    return false;
+            });
+
+            $("#button2").click(function() {
+                    var json_var = {"title":"1"} 
                     $.ajaxSetup({
-                        headers: { "X-CSRFToken": '{{ csrf_token }}' }
+                        headers: { "X-CSRFToken": getCookie('csrftoken') }
                     });
                     $.ajax({
-                        url : "flashcards/ajax",
-                        type : "POST",
+                        url : "/flashcards/ajax/",
+                        type : "GET",
                         contentType: "appilcation/json",
-                        data : {
-                            client_response : "hello",
-                            },
-                            success : function(json) {
-                                //alert(json);
-                                //var obj = $.parseJSON(json);
-                                alert(json.mess);
-                                //alert(2);
-                            },
-                            error : function(xhr,errmsg,err) {
-                                alert("zz" + xhr.responseText);
-                                //alert(errmsg);
-                                //alert(err);
-                            }
+                        data : json_var,
+                        success : function(json) {
+                            $("#note").text(json.note);
+                            $("#note").fadeIn(400).delay(3000).fadeOut(400);
+                        },
+                        error : function(xhr,errmsg,err) {
+                            alert("I am error:" + xhr.responseText);
+                        }
                     });
                     return false;
             });
+
+            function getCookie(name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
         });
 
 
     </script>
 
-<button id="button">click</button>
+Deck's Title: <input type="text" id="title" /><br/>
+<button id="button">Save</button><br/><br/>
+<button id="button2">get</button>
  
-
- <br/> <br/>
-Result: <br/>
-    <div id="result">
-    </div>
- <br/> <br/>
-Error: <br/>
-    <div id="err">
-    </div>
+<br/><br/>
+<div id="note" style='display:none'></div>
 
  
 </body>
