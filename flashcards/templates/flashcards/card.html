@@ -1,6 +1,6 @@
 Front: {{card.front}}<br/>
 Back: {{card.back}}<br/>
-Deck:  <a href="{% url 'flashcards:deck' deck.id %}">{{deck}}<a><br/>
+Deck:  <a href="{% url 'flashcards:deckview' deck.id %}">{{deck}}<a><br/>
 Due:
 {% if card.overdue %}
     <span style="color:red">{{card.due|date:"m/d/Y"}}</span><br/>

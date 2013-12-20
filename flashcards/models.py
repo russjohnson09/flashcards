@@ -15,7 +15,7 @@ class Deck(models.Model):
         return self.title
 
     def get_absolute_url(self):
-        return reverse('flashcards:deck', kwargs={'deck_id': self.id})
+        return reverse('flashcards:deckview', kwargs={'deck_id': self.id})
 
 class Card(models.Model):
     due = models.DateField()
@@ -44,10 +44,11 @@ class Response(models.Model):
     class Meta:
         ordering = ['-date']
 
+class Error(models.Model):
+    error_type = models.CharField(max_length=MAX_LENGTH)
+    text = models.CharField(max_length=MAX_LENGTH)
+    stack = models.TextField()
+    instant = models.DateTimeField()
 
-    
-
-"""
-  def save(self, *args, **kwargs):
-        super(Model, self).save(*args, **kwargs)
-"""
+    def __unicode__(self):
+        return self.error_type

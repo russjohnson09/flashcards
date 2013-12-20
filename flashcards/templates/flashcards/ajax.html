@@ -9,14 +9,14 @@
     <script type="text/javascript">
         $(document).ready(function() {
             $("#button").click(function() {
-                    //var title = $("#title").val();
-                    //if (title.length === 0) {
-                   //     $("#note").text("Title cannot be blank.");
-                   //     $("#note").fadeIn(400).delay(3000).fadeOut(400);
-                   //     return false;
-                    //}
+                    var title = $("#title").val();
+                   if (title.length === 0) {
+                        $("#note").text("Title cannot be blank.");
+                        $("#note").fadeIn(400).delay(3000).fadeOut(400);
+                        return false;
+                    }
                     var token = getCookie('csrftoken');
-                    var json_var = {"csrfmiddlewaretoken":token,"title":"1213","X-CSRFToken":token};
+                    var json_var = {"csrfmiddlewaretoken":token,"title":title,"X-CSRFToken":token};
                     var args = {
                         headers: { "X-CSRFToken": getCookie('csrftoken')},
                         url : "",
@@ -88,4 +88,10 @@ Deck's Title: <input type="text" id="title" /><br/>
  
 </body>
 </html>
+
+// similar behavior as an HTTP redirect
+//window.location.replace("http://stackoverflow.com");
+
+// similar behavior as clicking on a link
+//window.location.href = "http://stackoverflow.com";
 

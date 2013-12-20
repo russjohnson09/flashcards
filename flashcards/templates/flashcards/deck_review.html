@@ -1,0 +1,83 @@
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
+</script>
+</head> 
+<div id="review">
+Reviewing Deck {{deck}}.</br></br>
+{% for card in cards %}
+<div id={{forloop.counter0}} class="card" style="display: none;">
+<div class="card_id" style="display: none;">{{card.id}}</div>
+<div class="front">
+  {{card.front}}</br>
+</div>
+<div class="back" style="display: none;">
+  {{card.back}}</br>
+</div>
+</div>
+{% endfor %}
+</div>
+<div id="completed" style="display: none;">
+<a href="{% url 'flashcards:deckview' deck.id %}">Return to deck</a>
+</div>
+
+<button class="show">Show Back</button>
+<div id="next" style="display: none;">
+<button class="next" id=1>Correct</button>
+<button class="next" id=0>Incorrect</button>
+</div>
+
+{% csrf_token %}
+
+<script>
+$(function(){
+  var responses = new Array();
+  var card_num = 0;
+  $("div#0").show();
+  //$("div#0 > div.back").show();
+  
+  $("button.show").click(function(){
+    var str = "div#" + card_num + " > " + "div.back"
+    $(str).show();
+    $("button.show").hide();
+    $("div#next").show();
+  });
+
+  $("button.next").click(function(){
+    var divid = "div#" + card_num;
+    var id = $("divid" "> .card_id").text;
+    var response = this.id
+    $(divid).hide();
+    card_num = card_num + 1;
+    divid = "div#" + card_num
+    $(divid).show();
+    $("button.show").show();
+    $("div#next").hide(); 
+    myAjax(id,response);
+  });
+
+    function myAjax(id,response){
+        var csrftoken = getCookie('csrftoken');
+        var request = $.ajax({
+        url: "/submit_response",
+        type: "post",
+        data: serializedData
+    });
+    }
+
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie != '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = jQuery.trim(cookies[i]);
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>

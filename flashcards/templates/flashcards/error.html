@@ -1,0 +1,11 @@
+{% if errors %}
+<ul>
+{% for error in errors %}
+<h1>{{error}}</h1>
+Time: {{error.instant}}<br/>
+Description: {{error.text}}<br/>
+Stack: {{error.stack}}<br/>
+{% endfor %}
+{% else %}
+No validation errors.
+{% endif %}
