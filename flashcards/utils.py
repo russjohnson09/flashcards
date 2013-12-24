@@ -4,15 +4,50 @@ from flashcards.models import Card,Deck,Response,Error
 from datetime import date,timedelta,datetime
 from random import randint
 from django.http import HttpResponse
+from pymongo import MongoClient
+
+client = MongoClient()
+db = client['mydb']
 
 DECKS=10
 CARDS=5
 RESPONSES=3
 
 
+def delete():
+    db.decks.drop()
+    db.cards.drop()
+    db.responses.drop()
+
 """
 generates models with sample data to test with.
 """
+def generate_mongo():
+    today = datetime.utcnow()
+    decks = db.decks
+    cards = db.cards
+    responses = db.responses
+    for i in range(0,DECKS):
+        deck = {"title":'Deck' + str(i+1), "total_cards":CARDS,"user":"russ"}
+        deck_id = decks.insert(deck)
+        for j in range(0,CARDS):
+            right = 0
+            wrong = 0
+            #card = {"due":today+timedelta(1-randint(1,5)),"added":today-timedelta(5+randint(1,5)),"front":'front'+str(j+1),"back":'back'+str(j+1),"deck":deck["title"],"right":0,"wrong":0,"times_answered":RESPONSES,"user":deck["user"],"number":j+1}
+            card =  {"due":today+timedelta(1-randint(1,5)),"added":today-timedelta(5+randint(1,5)),"front":'front'+str(j+1),"back":'back'+str(j+1),"deck":deck["title"],"times_answered":RESPONSES,"user":deck["user"]}
+            card_id = cards.insert(card)
+            for k in range(0,RESPONSES):
+                correct = (randint(0,1)==1)
+                response = {"date":today-timedelta(days=k*2),"correct":correct,"card":card_id,"user":deck["user"],"number":k+1}
+                responses.insert(response)
+                if correct:
+                    right += 1
+                else:
+                    wrong += 1
+            #card["right"] = right
+            #card["wrong"] = wrong
+            cards.update({"deck":deck_id},{ '$set': { "right": right }, '$set':{"wrong":wrong}})
+
 def generate():
     today = date.today()
     for i in range(0,DECKS):
@@ -34,6 +69,7 @@ def generate():
             c.right = right
             c.wrong = wrong
             c.save()
+    return
 
 def csv_to_deck(f,deck=None):
     total = deck.total_cards

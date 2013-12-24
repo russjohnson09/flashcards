@@ -3,19 +3,27 @@ from django.http import HttpResponse
 from flashcards.models import Deck,Card,Response,Error
 from flashcards.forms import UploadFileForm,UploadForm
 from datetime import date
-from flashcards.utils import generate,csv_to_deck,export_deck,validate
+#from flashcards.utils import generate,csv_to_deck,export_deck,validate,generate_mongo
+from flashcards import utils
 from django.views.decorators.csrf import ensure_csrf_cookie,csrf_exempt
 import json
+from django.http import Http404
+
+from pymongo import MongoClient
+from bson.objectid import ObjectId
+
+client = MongoClient()
+db = client['mydb']
 
 #index
 def index(request):
-    decks = Deck.objects.all()
+    decks = db.decks.find()
     return render(request,'flashcards/index.html',{'decks':decks})
 
 #model views
-def deckview(request, deck_id):
-    deck = get_object_or_404(Deck,pk=deck_id)
-    cards = Card.objects.filter(deck=deck)
+def deckview(request,deck_id):
+    deck = db.decks.find_one({"_id":ObjectId(deck_id)})
+    cards = db.cards.find({"deck":ObjectId(deck_id)})
     return render(request,'flashcards/deck.html',{'deck':deck,'cards':cards})
 
 def cardview(request, card_id):
@@ -26,14 +34,14 @@ def cardview(request, card_id):
 #editing models
 def deck_export(request,deck_id):
     deck = get_object_or_404(Deck,pk=deck_id)
-    return export_deck(deck)
+    return utils.export_deck(deck)
 
 @ensure_csrf_cookie
 def deck_create(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            deck = csv_to_deck(request.FILES['f'])
+            deck = utils.csv_to_deck(request.FILES['f'])
             return redirect(deck)
     else:
         form = UploadFileForm()
@@ -44,7 +52,7 @@ def deck_import(request,deck_id):
     if request.method == 'POST':
         form = UploadForm(request.POST, request.FILES)
         if form.is_valid():
-            deck = csv_to_deck(request.FILES['f'],deck)
+            deck = utils.csv_to_deck(request.FILES['f'],deck)
             return redirect(deck)
     else:
         form = UploadForm()
@@ -74,16 +82,21 @@ def review(request):
 
 
 #utils
-def utils(request):
+def utils_index(request):
     return render(request, 'flashcards/utils.html')
 
 def utils_generate(request):
-    generate()
-    return redirect('flashcards:utils')
+    #generate()
+    utils.generate_mongo()
+    return redirect('flashcards:utils_index')
 
 def utils_validate(request):
-    errors = validate()
+    errors = utils.validate()
     return render(request, 'flashcards/error.html', {'errors':errors})
+
+def utils_delete(request):
+    utils.delete()
+    return redirect('flashcards:utils_index')
 
 def errorview(request):
     errors = Error.objects.all()
