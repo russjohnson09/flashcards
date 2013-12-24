@@ -1,6 +1,6 @@
 Your decks<br/>
 <ul>
 {% for deck in decks %}
-  <li><a href="{% url 'flashcards:deckview' deck.id %}">{{deck}}<a></li>
+  <li><a href="{% url 'flashcards:deckview' deck.id %}">{{deck}}</a></li>
 {% endfor %}
 </ul>
