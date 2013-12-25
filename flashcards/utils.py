@@ -6,23 +6,24 @@ from random import randint
 from django.http import HttpResponse
 from pymongo import MongoClient
 
-client = MongoClient()
-db = client['mydb']
+#client = MongoClient()
+#db = client['mydb']
 
 DECKS=10
 CARDS=5
 RESPONSES=3
 
+TODAY = datetime.utcnow()
 
-def delete():
-    db.decks.drop()
-    db.cards.drop()
-    db.responses.drop()
+
+def delete(collections):
+    for collection in collections:
+        collection.drop()
 
 """
 generates models with sample data to test with.
 """
-def generate_mongo():
+def generate(db):
     today = datetime.utcnow()
     decks = db.decks
     cards = db.cards
@@ -33,8 +34,7 @@ def generate_mongo():
         for j in range(0,CARDS):
             right = 0
             wrong = 0
-            #card = {"due":today+timedelta(1-randint(1,5)),"added":today-timedelta(5+randint(1,5)),"front":'front'+str(j+1),"back":'back'+str(j+1),"deck":deck["title"],"right":0,"wrong":0,"times_answered":RESPONSES,"user":deck["user"],"number":j+1}
-            card =  {"due":today+timedelta(1-randint(1,5)),"added":today-timedelta(5+randint(1,5)),"front":'front'+str(j+1),"back":'back'+str(j+1),"deck":deck["title"],"times_answered":RESPONSES,"user":deck["user"]}
+            card =  {"due":today+timedelta(1-randint(1,5)),"added":today-timedelta(5+randint(1,5)),"front":'front'+str(j+1),"back":'back'+str(j+1),"deck":deck_id,"times_answered":RESPONSES,"user":deck["user"]}
             card_id = cards.insert(card)
             for k in range(0,RESPONSES):
                 correct = (randint(0,1)==1)
@@ -44,65 +44,35 @@ def generate_mongo():
                     right += 1
                 else:
                     wrong += 1
-            #card["right"] = right
-            #card["wrong"] = wrong
             cards.update({"deck":deck_id},{ '$set': { "right": right }, '$set':{"wrong":wrong}})
 
-def generate():
-    today = date.today()
-    for i in range(0,DECKS):
-        d = Deck(title='Deck '+ str(i+1),total_cards=CARDS)
-        d.save()
-        for j in range(0,CARDS):
-            right = 0
-            wrong = 0
-            c = Card(due=today+timedelta(1-randint(1,5)),added=today-timedelta(5+randint(1,5)),front='front'+str(j+1),back='back'+str(j+1),deck=d,right=0,wrong=0,times_answered=RESPONSES)
-            c.save()
-            for k in range(0,RESPONSES):
-                correct = (randint(0,1)==1)
-                r = Response(date=today-timedelta(days=k*2),correct=correct,card=c)
-                r.save()
-                if correct:
-                    right += 1
-                else:
-                    wrong += 1
-            c.right = right
-            c.wrong = wrong
-            c.save()
-    return
-
-def csv_to_deck(f,deck=None):
-    total = deck.total_cards
+#deck_id
+#user - username
+#cards - card collection
+def card_import(f,deck_id,db,user):
+    cards_added = 0
     reader = csv.reader(f)
-    today = date.today()
-    if not deck:
-        deck = Deck(title='default',total_cards=0)
-        deck.save()
-    for line_num, row in enumerate(reader):
-        if line_num == 0:
-            deck.title = row[0]
-            continue
-        c = Card(due=today,added=today,front=row[0],back=row[1],deck=deck,right=0,wrong=0,times_answered=0)
-        c.save()
-        total += 1
-    deck.total_cards = total
-    deck.save()
-    return deck
+    if not deck_id:
+        return 0
+    for row in reader:
+        card =  {"due":TODAY,"added":TODAY,"front":row[0],"back":row[1],"deck":deck_id,"times_answered":0,"user":user}
+        card_id = db.cards.insert(card)
+        cards_added += 1
+    return cards_added
 
 """
-Export deck
+Export cards in deck using deck.title as name
 params
 deck: deck model object
 returns: httpresponse
 """
-def export_deck(deck):
+def export_deck(deck,cards):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = \
-        'attachment; filename="{0}.csv"'.format(deck.title + date.today().isoformat())
+        'attachment; filename="{0}.csv"'.format(deck['title'] + date.today().isoformat())
     writer = csv.writer(response)
-    cards = Card.objects.filter(deck=deck)
     for card in cards:
-        writer.writerow([card.front,card.back])
+        writer.writerow([card['front'],card['back']])
     return response
 
 def validate():

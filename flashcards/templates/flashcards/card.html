@@ -1,6 +1,7 @@
+{% load extras %}
 Front: {{card.front}}<br/>
 Back: {{card.back}}<br/>
-Deck:  <a href="{% url 'flashcards:deckview' deck.id %}">{{deck}}</a><br/>
+Deck:  <a href="{% url 'flashcards:deckview' deck|id %}">{{deck.title}}</a><br/>
 Due:
 {% if card.overdue %}
     <span style="color:red">{{card.due|date:"m/d/Y"}}</span><br/>
@@ -14,9 +15,9 @@ Responses: {{card.times_answered}}<br/>
 <ul>
 {% for response in responses %}
     {% if response.correct %}
-        <li>{{response}}</li>
+        <li>{{response.date|date:"m/d/Y"}}</li>
     {% else %}
-        <li><span style="color:red">{{response}}</span></li>
+        <li><span style="color:red">{{response.date|date:"m/d/Y"}}</span></li>
     {% endif %}
 {% endfor %}
 </ul>

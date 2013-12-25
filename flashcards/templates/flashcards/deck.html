@@ -2,7 +2,7 @@
 Cards in deck {{deck.title}}<br/>
 <ul>
 {% for card in cards %}
-  <li><a href="{% url 'flashcards:cardview' card|id%}">{{card}}</a> - {{card.due|date:"m/d/Y"}}</li>
+  <li><a href="{% url 'flashcards:cardview' card|id%}">{{card.front}}</a> - {{card.due|date:"m/d/Y"}}</li>
 {% endfor %}
 </ul>
 <a href="{% url 'flashcards:deck_export' deck|id %}">Export this deck</a><br/>

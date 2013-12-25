@@ -14,6 +14,7 @@ from bson.objectid import ObjectId
 
 client = MongoClient()
 db = client['mydb']
+collections = [db.decks,db.cards,db.responses]
 
 #index
 def index(request):
@@ -22,19 +23,28 @@ def index(request):
 
 #model views
 def deckview(request,deck_id):
-    deck = db.decks.find_one({"_id":ObjectId(deck_id)})
-    cards = db.cards.find({"deck":ObjectId(deck_id)})
+    deck_id = ObjectId(deck_id)
+    deck = db.decks.find_one({"_id":deck_id})
+    cards = db.cards.find({"deck":deck_id})
     return render(request,'flashcards/deck.html',{'deck':deck,'cards':cards})
 
 def cardview(request, card_id):
-    card = get_object_or_404(Card,pk=card_id)
-    responses = Response.objects.filter(card=card)
-    return render(request,'flashcards/card.html',{'deck':card.deck,'card':card, 'responses':responses})
+    card_id = ObjectId(card_id)
+    card = db.cards.find_one({"_id":card_id})
+    deck = db.decks.find_one({"_id":card["deck"]})
+    responses = db.responses.find({"card":card_id})
+    return render(request,'flashcards/card.html',{'deck':deck,'card':card, 'responses':responses})
 
 #editing models
 def deck_export(request,deck_id):
-    deck = get_object_or_404(Deck,pk=deck_id)
-    return utils.export_deck(deck)
+    deck_id = ObjectId(deck_id)
+    deck = db.decks.find_one({"_id":deck_id})
+    if deck is None:
+        raise Http404
+    cards = db.cards.find({"deck":deck_id})
+    if cards.count() == 0:
+        return HttpResponse("No cards in deck")
+    return utils.export_deck(deck,cards)
 
 @ensure_csrf_cookie
 def deck_create(request):
@@ -47,13 +57,17 @@ def deck_create(request):
         form = UploadFileForm()
     return render(request,'flashcards/deck_create.html',{'form':form})
 
-def deck_import(request,deck_id):
-    deck = get_object_or_404(Deck,pk=deck_id)
+def deck_import(request,deck_id=None):
+    if not deck_id:
+        raise Http404
+    deck_id = ObjectId(deck_id)
+    deck = db.decks.find({"_id":deck_id}) #collection of one
     if request.method == 'POST':
         form = UploadForm(request.POST, request.FILES)
         if form.is_valid():
-            deck = utils.csv_to_deck(request.FILES['f'],deck)
-            return redirect(deck)
+            cards_added = utils.card_import(request.FILES['f'],deck_id,db,"russ")
+            db.decks.update({"_id":deck_id},{"$inc":{"total_cards":cards_added}})
+            return redirect('flashcards:deckview',deck_id=str(deck_id))
     else:
         form = UploadForm()
     return render(request,'flashcards/deck_import.html',{'form':form})
@@ -86,8 +100,7 @@ def utils_index(request):
     return render(request, 'flashcards/utils.html')
 
 def utils_generate(request):
-    #generate()
-    utils.generate_mongo()
+    utils.generate(db)
     return redirect('flashcards:utils_index')
 
 def utils_validate(request):
@@ -95,7 +108,7 @@ def utils_validate(request):
     return render(request, 'flashcards/error.html', {'errors':errors})
 
 def utils_delete(request):
-    utils.delete()
+    utils.delete(collections)
     return redirect('flashcards:utils_index')
 
 def errorview(request):
