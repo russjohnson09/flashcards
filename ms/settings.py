@@ -36,7 +36,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'polls',
     'flashcards',
 )
 
@@ -58,13 +57,6 @@ WSGI_APPLICATION = 'ms.wsgi.application'
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db',
-        'USER' : 'russ',
-        'PASSWORD': 'russ',
-        'HOST' : 'localhost',
-    }
 }
 
 # Internationalization

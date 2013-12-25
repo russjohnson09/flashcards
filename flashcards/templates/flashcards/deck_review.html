@@ -1,12 +1,13 @@
+{% load extras %}
 <head>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js">
 </script>
 </head> 
 <div id="review">
-Reviewing Deck {{deck}}.</br></br>
+Reviewing Deck {{deck.title}}.</br></br>
 {% for card in cards %}
 <div id={{forloop.counter0}} class="card" style="display: none;">
-<div class="card_id" style="display: none;">{{card.id}}</div>
+<div class="card_id" style="display: none;">{{card|id}}</div>
 <div class="front">
   {{card.front}}</br>
 </div>
@@ -17,7 +18,7 @@ Reviewing Deck {{deck}}.</br></br>
 {% endfor %}
 </div>
 <div id="completed" style="display: none;">
-<a href="{% url 'flashcards:deckview' deck.id %}">Return to deck</a>
+<a href="{% url 'flashcards:deckview' deck|id %}">Return to deck</a>
 </div>
 
 <button class="show">Show Back</button>
@@ -33,7 +34,6 @@ $(function(){
   var responses = new Array();
   var card_num = 0;
   $("div#0").show();
-  //$("div#0 > div.back").show();
   
   $("button.show").click(function(){
     var str = "div#" + card_num + " > " + "div.back"
@@ -64,15 +64,15 @@ $(function(){
     });
     }
 
-    function getCookie(name) {
+    function getCookie(n) {
         var cookieValue = null;
         if (document.cookie && document.cookie != '') {
             var cookies = document.cookie.split(';');
             for (var i = 0; i < cookies.length; i++) {
                 var cookie = jQuery.trim(cookies[i]);
                 // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) == (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                if (cookie.substring(0, n.length + 1) == (n + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(n.length + 1));
                     break;
                 }
             }

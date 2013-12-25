@@ -1,13 +1,8 @@
 import csv
-
-from flashcards.models import Card,Deck,Response,Error
 from datetime import date,timedelta,datetime
 from random import randint
 from django.http import HttpResponse
 from pymongo import MongoClient
-
-#client = MongoClient()
-#db = client['mydb']
 
 DECKS=10
 CARDS=5

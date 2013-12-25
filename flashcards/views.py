@@ -1,18 +1,15 @@
 from django.shortcuts import render,get_object_or_404,redirect,render_to_response
-from django.http import HttpResponse
-from flashcards.models import Deck,Card,Response,Error
+from django.http import HttpResponse,Http404
 from flashcards.forms import UploadFileForm,UploadForm
 from datetime import date
-#from flashcards.utils import generate,csv_to_deck,export_deck,validate,generate_mongo
 from flashcards import utils
 from django.views.decorators.csrf import ensure_csrf_cookie,csrf_exempt
 import json
-from django.http import Http404
 
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 
-client = MongoClient()
+client = MongoClient('mongodb://rdj:rdj@ds061298.mongolab.com:61298/mydb') #practice db
 db = client['mydb']
 collections = [db.decks,db.cards,db.responses]
 
@@ -73,20 +70,19 @@ def deck_import(request,deck_id=None):
     return render(request,'flashcards/deck_import.html',{'form':form})
 
 def deck_edit(request,deck_id):
-    deck = get_object_or_404(Deck,pk=deck_id)
-    cards = Card.objects.filter(deck=deck).exclude(due__gt=date.today())
     return render(request,'flashcards/deck_edit.html',{'deck':deck,'cards':cards})
 
 def deck_transfer(request,deck_id):
     return HttpResponse("1")
-    deck = get_object_or_404(Deck,pk=deck_id)
-    cards = Card.objects.filter(deck=deck).exclude(due__gt=date.today())
+    #deck = get_object_or_404(Deck,pk=deck_id)
+    #cards = Card.objects.filter(deck=deck).exclude(due__gt=date.today())
     return render(request,'flashcards/deck_edit.html',{'deck':deck,'cards':cards})
 
 @ensure_csrf_cookie
 def deck_review(request,deck_id):
-    deck = get_object_or_404(Deck,pk=deck_id)
-    cards = Card.objects.filter(deck=deck) #.exclude(due__gt=date.today())
+    deck_id = ObjectId(deck_id)
+    deck = db.decks.find_one({"_id":deck_id})
+    cards = db.cards.find({"deck":deck_id})
     return render(request,'flashcards/deck_review.html',{'deck':deck,'cards':cards})
 
 @ensure_csrf_cookie
