@@ -30,5 +30,4 @@ urlpatterns = patterns('',
     url('^utils/error/$', views.errorview, name='errorview'),
     url('^utils/delete/$', views.utils_delete, name='utils_delete'),
     url('^submit_response/$', views.submit_response, name='submit_response'),
-    #url(r'^ajax_json/', views.ajax_json, name='ajax_json'),
 )

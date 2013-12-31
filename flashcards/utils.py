@@ -11,6 +11,27 @@ RESPONSES=3
 TODAY = datetime.utcnow()
 
 
+def save_response(db,card_id,response,user="anon"):
+    responses = db.responses
+    cards = db.cards
+    card = cards.find_one({"_id":card_id})
+    correct = response==1
+    r = {"date":TODAY,"correct":correct,"card":card_id,"user":user}
+    responses.insert(r)
+    if correct:
+        cards.update({"_id":card_id}, {"$inc":{"right":1}})
+    else:
+        cards.update({"_id":card_id}, {"$inc":{"wrong":1}})
+    return 1
+
+#correct - is correct?
+#card - card article
+def update_card(correct,card):
+    if correct:
+        pass
+    else:
+        pass
+
 def delete(collections):
     for collection in collections:
         collection.drop()
@@ -77,9 +98,7 @@ def validate():
     errors = []
     errors = test_errors(10)
     for deck in decks:
-        #true_total = len(Card.objects.filter(deck=deck))
         if not deck.total_cards == true_total:
-            #error = Error(error_type="Validation error",text=deck.title + "[" + deck.id +"]" + "-" + deck.total_cards ":" + true_total,instant=instant,stack="NA")
             error = Error(error_type="1",text="1",instant=instant,stack="NA")
             error.save()
             errors.append(error)

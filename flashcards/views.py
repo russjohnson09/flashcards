@@ -74,8 +74,6 @@ def deck_edit(request,deck_id):
 
 def deck_transfer(request,deck_id):
     return HttpResponse("1")
-    #deck = get_object_or_404(Deck,pk=deck_id)
-    #cards = Card.objects.filter(deck=deck).exclude(due__gt=date.today())
     return render(request,'flashcards/deck_edit.html',{'deck':deck,'cards':cards})
 
 @ensure_csrf_cookie
@@ -88,21 +86,11 @@ def deck_review(request,deck_id):
 @ensure_csrf_cookie
 def submit_response(request):
     if request.is_ajax() and request.method == 'POST':
-        #title = request.POST['title']
-        #response = {}
-        #response['note'] = "You're deck " + title + " Saved Successfully"
-        #deck = Deck(title=title,total_cards=0)
-        #deck.save()
-        response = {"hello":"hello"}
-        return HttpResponse(json.dumps(response),content_type='application/json')
-    elif request.is_ajax() and request.method == 'GET':
-        title = len(request.GET)
-        response = {}
-        response['note'] = 'Saved Successfully'
-        response['note'] = title
-        return HttpResponse(json.dumps(response),content_type='application/json')
-    else:
-        return render(request,'flashcards/ajax.html')
+        card_id = ObjectId(request.POST['id'])
+        response = int(request.POST['response'])
+        utils.save_response(db,card_id,response)
+        return HttpResponse(json.dumps({"success":"Saved response"}),content_type='application/json')
+    return HttpResponse(json.dumps({"error":error}),content_type='application/json')
 
 @ensure_csrf_cookie
 def review(request):
@@ -129,24 +117,3 @@ def utils_delete(request):
 def errorview(request):
     errors = Error.objects.all()
     return render(request, 'flashcards/error.html',{'errors':errors})
-
-
-#test views
-
-@ensure_csrf_cookie
-def ajax(request):
-    if request.is_ajax() and request.method == 'POST':
-        title = request.POST['title']
-        response = {}
-        response['note'] = "You're deck " + title + " Saved Successfully"
-        deck = Deck(title=title,total_cards=0)
-        deck.save()
-        return HttpResponse(json.dumps(response),content_type='application/json')
-    elif request.is_ajax() and request.method == 'GET':
-        title = len(request.GET)
-        response = {}
-        response['note'] = 'Saved Successfully'
-        response['note'] = title
-        return HttpResponse(json.dumps(response),content_type='application/json')
-    else:
-        return render(request,'flashcards/ajax.html')

@@ -46,13 +46,19 @@ $(function () {
         var divid = "div#" + card_num;
         var id = $(divid + ">.card_id").text();
         var response = this.id;
+        myAjax(id,response);
         $(divid).hide();
         card_num = card_num + 1;
         divid = "div#" + card_num;
-        $(divid).show();
-        $("button.show").show();
         $("div#next").hide();
-        myAjax(id, response);
+        var div = $(divid)
+        if (div.length) {
+            div.show();
+            $("button.show").show();
+        }
+        else {
+            $("#completed").show();
+        }
     });
 
     function myAjax(id, response) {
@@ -67,7 +73,7 @@ $(function () {
                 "csrfmiddlewaretoken": csrftoken
             },
             error: err,
-            success: function(json) {alert(json["hello"]);},
+            success: function(json){displaymessage(json);},
         };
         $.ajax(request);
     }
@@ -77,7 +83,10 @@ $(function () {
     }
 
     function displaymessage(r) {
-        alert(response);
+        if (r["error"] != null){ alert(r["error"]); }
+        else if (r["success"]){
+            //alert(r["success"]);
+        }
     }
 
     function getCookie(n) {
