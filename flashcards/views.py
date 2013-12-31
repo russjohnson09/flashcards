@@ -86,6 +86,25 @@ def deck_review(request,deck_id):
     return render(request,'flashcards/deck_review.html',{'deck':deck,'cards':cards})
 
 @ensure_csrf_cookie
+def submit_response(request):
+    if request.is_ajax() and request.method == 'POST':
+        #title = request.POST['title']
+        #response = {}
+        #response['note'] = "You're deck " + title + " Saved Successfully"
+        #deck = Deck(title=title,total_cards=0)
+        #deck.save()
+        response = {"hello":"hello"}
+        return HttpResponse(json.dumps(response),content_type='application/json')
+    elif request.is_ajax() and request.method == 'GET':
+        title = len(request.GET)
+        response = {}
+        response['note'] = 'Saved Successfully'
+        response['note'] = title
+        return HttpResponse(json.dumps(response),content_type='application/json')
+    else:
+        return render(request,'flashcards/ajax.html')
+
+@ensure_csrf_cookie
 def review(request):
     cards = Card.objects.exclude(due__gt=date.today())
     return render(request,'flashcards/review.html',{'cards':cards})

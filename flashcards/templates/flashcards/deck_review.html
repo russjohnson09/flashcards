@@ -30,43 +30,59 @@ Reviewing Deck {{deck.title}}.</br></br>
 {% csrf_token %}
 
 <script>
-$(function(){
-  var responses = new Array();
-  var card_num = 0;
-  $("div#0").show();
-  
-  $("button.show").click(function(){
-    var str = "div#" + card_num + " > " + "div.back"
-    $(str).show();
-    $("button.show").hide();
-    $("div#next").show();
-  });
+$(function () {
+    var responses = [];
+    var card_num = 0;
+    $("div#0").show();
 
-  $("button.next").click(function(){
-    var divid = "div#" + card_num;
-    var id = $("divid" "> .card_id").text;
-    var response = this.id
-    $(divid).hide();
-    card_num = card_num + 1;
-    divid = "div#" + card_num
-    $(divid).show();
-    $("button.show").show();
-    $("div#next").hide(); 
-    myAjax(id,response);
-  });
-
-    function myAjax(id,response){
-        var csrftoken = getCookie('csrftoken');
-        var request = $.ajax({
-        url: "/submit_response",
-        type: "post",
-        data: serializedData
+    $("button.show").click(function () {
+        var str = "div#" + card_num + " > " + "div.back";
+        $(str).show();
+        $("button.show").hide();
+        $("div#next").show();
     });
+
+    $("button.next").click(function () {
+        var divid = "div#" + card_num;
+        var id = $(divid + ">.card_id").text();
+        var response = this.id;
+        $(divid).hide();
+        card_num = card_num + 1;
+        divid = "div#" + card_num;
+        $(divid).show();
+        $("button.show").show();
+        $("div#next").hide();
+        myAjax(id, response);
+    });
+
+    function myAjax(id, response) {
+        var csrftoken = getCookie('csrftoken');
+        var request = {
+            url: "/flashcards/submit_response/",
+            type: "post",
+            dataType: "json", 
+            data: {
+                "id": id,
+                "response": response,
+                "csrfmiddlewaretoken": csrftoken
+            },
+            error: err,
+            success: function(json) {alert(json["hello"]);},
+        };
+        $.ajax(request);
+    }
+
+    function err(xhr,errmsg,err) {
+        alert(xhr.status + ": " + xhr.responseText);
+    }
+
+    function displaymessage(r) {
+        alert(response);
     }
 
     function getCookie(n) {
         var cookieValue = null;
-        if (document.cookie && document.cookie != '') {
+        if (document.cookie && document.cookie !== '') {
             var cookies = document.cookie.split(';');
             for (var i = 0; i < cookies.length; i++) {
                 var cookie = jQuery.trim(cookies[i]);
