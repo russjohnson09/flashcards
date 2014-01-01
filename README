@@ -1,0 +1,8 @@
+=Intro=
+Ramdom web development stuff. Right now I've been working on a flashcard type application and a bullet-hell type game. I've been using [https://github.com/silconsystem/danmaku Silcon's Danmaku] as a starting point.
+
+=Creating a virtual environment=
+I have included a requuirements.txt, which can be used to create a clean python library to test things with.
+
+=Git commands=
+git rm -r --cached . then git add .
