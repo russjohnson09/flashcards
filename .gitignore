@@ -3,4 +3,4 @@
 *.pydevproject
 bin/
 venv/
-
+.settings/
