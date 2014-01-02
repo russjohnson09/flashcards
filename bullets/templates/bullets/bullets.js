@@ -114,7 +114,6 @@ function handle_player() {
         }
     }
     
-    c.fillStyle="#FF0000";
     c.beginPath();
     c.arc(p.x,p.y,p.r,0,2*Math.PI);
     c.fill();
@@ -146,7 +145,7 @@ function handle_enemies(){
         e = enemies[i];
         if (out(e)){
             enemies.splice(i,1);
-            return;
+            break;
         }
         e.vx += e.ax;
         e.vy += e.ay;
@@ -163,7 +162,6 @@ function handle_enemies(){
 		if (e.health < 0)
 			enemies.splice(i, 1);
         else {
-            c.fillStyle="#FF0000";
             c.beginPath();
             c.arc(e.x,e.y,e.r,0,2*Math.PI);
             c.fill();
@@ -182,19 +180,18 @@ function handle_enemies(){
 
 function handle_bullets() {
     var b;
-    for (var i = bullets.length - 1; i > -1; i--)
+    var l = bullets.length -1;
+    for (var i = bullets.length -1; i > -1; i--)
 	{
         b = bullets[i];
         b.x += b.vx;
         b.y += b.vy;
-        
-        if (out(b)){
-            bullets.splice(i,1);
-            return;
-        }
         c.beginPath();
         c.arc(b.x,b.y,b.r,0,2*Math.PI);
         c.fill();
+        if (out(b)){
+            bullets.splice(i,1);
+        }
 	}
 }
 
@@ -217,6 +214,7 @@ function loop() {
     frame += 1;
     c.fillStyle = b;
     c.fillRect(0, 0, WIDTH, HEIGHT);
+    c.fillStyle="#FF0000";
     
     handle_player();
     spawn();
@@ -279,8 +277,31 @@ function level1() {
     enemypros[2] = epro;
 }
 
+function level2() {
+    var epro;
+    epro = $.extend(true,{},standardEnemyPro);
+    epro.spawnrate = 80;
+    epro.upperlim = 9999;
+    epro.enemy.vy = 5;
+    epro.enemy.ay = -.04;
+    epro.enemy.bulletprofile.bullet.vx = 0;
+    epro.enemy.bulletprofile.spawnrate = 20;
+    enemypros[0] = epro;
+    epro = $.extend(true,{},standardEnemyPro);
+    epro.spawnrate = 80;
+    epro.lowerlim = 30;
+    epro.upperlim = 9999;
+    epro.enemy.x = WIDTH + 1;
+    epro.enemy.vy = 5;
+    epro.enemy.vx = -5;
+    epro.enemy.ay = -.04;
+    epro.enemy.bulletprofile.bullet.vx = 0;
+    epro.enemy.bulletprofile.spawnrate = 20;
+    enemypros[1] = epro;
+}
+
 $(function () {
     init();
-    level1();
+    level2();
     interval = setInterval(loop, 20); 
 });
