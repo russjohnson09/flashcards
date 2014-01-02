@@ -6,4 +6,5 @@ admin.autodiscover()
 urlpatterns = patterns('',
     # Examples:
     url(r'flashcards/', include('flashcards.urls',namespace='flashcards')),
+    url(r'bullets/', include('bullets.urls', namespace='bullets')),
 )
