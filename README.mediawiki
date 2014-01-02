@@ -10,8 +10,29 @@ Ramdom web development stuff. Right now I've been working on a flashcard type ap
 *Enemy Profile
 *Level
 
+=Quickstart=
+*[https://devcenter.heroku.com/articles/getting-started-with-django Django on heroku]
+#Clone the repository git clone <repo>
+#Create venv - virtualenv venv
+#source venv/bin/activate
+#install requirements - pip install -r requirements.txt ([http://www.pip-installer.org/en/latest/usage.html pip usage])
+#python manage.py runserver (from within the project directory).
+
+
+
+
+For any subsequent times you want to test this out, simply use source venv/bin/activate to go to start the python virtual environment in your terminal.
+
+
 =Creating a virtual environment=
 I have included a requuirements.txt, which can be used to create a clean python library to test things with.
 
 =Git commands=
-git rm -r --cached . then git add .
+*git rm -r --cached . then git add .
+
+=Implementation=
+Right now I'm using [https://mongolab.com Mongolab] to host my mongodb and [https://www.heroku.com/ heroku] to host the app itself.
+
+=Misc. Refs=
+*[http://theforeman.org/ foreman]
+*[https://devcenter.heroku.com/articles/python-pip Heroku on Pip]
