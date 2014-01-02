@@ -12,10 +12,13 @@ var p = {
     "speed" : 10,
     "x" : 240,
     "y" : 440,
-    "r" : 10
+    "r" : 10,
+    "bullet_spawn" : 10,
+    "last_spawn" : 0
 };
 
 var bulletpros = [];
+var pbullets = [];
 
 var standardBullet = {
     "health" : 999999,
@@ -30,7 +33,7 @@ var standardBullet = {
 
 var standardBulletPro = {
     "bullet" : standardBullet,
-    "spawnrate" : 10,
+    "spawnrate" : 20,
     "last_spawn" : 0
 };
 
@@ -53,7 +56,7 @@ var standardEnemyPro = {
     "enemy" : standardEnemey,
     "spawnrate" : 20,
     "lowerlim" : 0,
-    "upperlim" : 99999999,
+    "upperlim" : 300,
     "last_spawn" : 0
 };
 
@@ -66,18 +69,151 @@ var enemies = [];
 var u = 0; //movement up,down,left,right
 var d = 0;
 var l = 0;
-var r = 0; 
+var r = 0;
 var z = 0; //shoot
 var interval;
 
-$(function () {
-    init();
-    level1();
-    interval = setInterval(loop, 20); 
-});
 
-function loop()
-{
+function handle_player() {
+    var b;
+    
+    for (var i = bullets.length-1; i > -1; i--) {
+        b = bullets[i];
+        if (collision(p,b)) {
+            p.lives--;
+            bullets.splice(i,1);
+        }
+    }
+    
+    var s = p.speed
+    p.x += (r-l) * s;
+    p.y += (d-u) * s;
+    if ((p.x + p.r) > WIDTH) {
+        p.x = WIDTH - p.r;
+    }
+    else if (p.x < p.r) {
+        p.x = p.r;
+    }
+    
+    if ((p.y + p.r) > HEIGHT) {
+        p.y = HEIGHT - p.r;
+    }
+    else if (p.y < p.r) {
+        p.y = p.r;
+    }
+    
+    if (z) {
+        if (p.bullet_spawn < (frame - p.last_spawn)){
+            var pbullet = {"x":p.x,
+                           "y":p.y,
+                           "vx":0,
+                           "vy":-10,
+                           "r":2};
+            pbullets[pbullets.length] = pbullet;
+            p.last_spawn = frame;
+        }
+    }
+    
+    c.fillStyle="#FF0000";
+    c.beginPath();
+    c.arc(p.x,p.y,p.r,0,2*Math.PI);
+    c.fill();
+}
+
+function handle_pbullets() {
+    var b;
+    for (var i = pbullets.length-1; i > -1; i--)
+	{
+        b = pbullets[i];
+        b.x += b.vx;
+        b.y += b.vy;
+        if (out(b)){
+            pbullets.splice(i,1);
+            return;
+        }
+        c.beginPath();
+        c.arc(b.x,b.y,b.r,0,2*Math.PI);
+        c.fill();
+	}
+}
+
+function handle_enemies(){
+    var e;
+    var b;
+    var bulletpro;
+	for (var i = enemies.length -1; i > -1; i--)
+	{
+        e = enemies[i];
+        if (out(e)){
+            enemies.splice(i,1);
+            return;
+        }
+        e.vx += e.ax;
+        e.vy += e.ay;
+        e.x += e.vx;
+        e.y += e.vy;
+		
+        for (var j = pbullets.length-1; j > -1; j--) {
+            if (collision(e,pbullets[j])){
+                e.health--;
+                pbullets.splice(j,1);
+            }
+        }
+        
+		if (e.health < 0)
+			enemies.splice(i, 1);
+        else {
+            c.fillStyle="#FF0000";
+            c.beginPath();
+            c.arc(e.x,e.y,e.r,0,2*Math.PI);
+            c.fill();
+            
+            bulletpro = e.bulletprofile;
+            if (((frame - e.spawned) - bulletpro.last_spawn) > bulletpro.spawnrate) {
+                b = $.extend({},bulletpro.bullet);
+                b.x += e.x;
+                b.y += e.y;
+                bullets[bullets.length]=b;
+                bulletpro.last_spawn = frame;
+            }
+        }
+	}
+}
+
+function handle_bullets() {
+    var b;
+    for (var i = bullets.length - 1; i > -1; i--)
+	{
+        b = bullets[i];
+        b.x += b.vx;
+        b.y += b.vy;
+        
+        if (out(b)){
+            bullets.splice(i,1);
+            return;
+        }
+        c.beginPath();
+        c.arc(b.x,b.y,b.r,0,2*Math.PI);
+        c.fill();
+	}
+}
+
+function spawn() {
+    var enemypro;
+    for (var i=enemypros.length-1; i > -1; i--) {
+        enemypro=enemypros[i];
+        if (enemypro.upperlim < frame) {
+            enemypros.splice(i, 1);
+        }
+        else if ( frame > enemypro.lowerlim && (frame - enemypro.last_spawn) > enemypro.spawnrate) {
+            enemies[enemies.length]=$.extend(true,{},enemypro.enemy);
+            enemypro.last_spawn=frame;
+        }
+    }
+}
+
+
+function loop() {
     frame += 1;
     c.fillStyle = b;
     c.fillRect(0, 0, WIDTH, HEIGHT);
@@ -85,69 +221,20 @@ function loop()
     handle_player();
     spawn();
     
-    c.fillStyle="#FF0000";
-    c.beginPath();
-    c.arc(p.x,p.y,p.r,0,2*Math.PI);
-    c.fill();
-    
-	// handle enemies
-	for (var i = 0; i < enemies.length; i++)
-	{
-        var e = enemies[i];
-        handle_enemy(e);
-		
-		if (e.dead)
-			enemies.splice(i, 1);
-        else {
-            c.beginPath();
-            c.arc(e.x,e.y,e.r,0,2*Math.PI);
-            c.fill();
-        }
-	}
-	
-	// handle bullets
-	for (var i = 0; i < bullets.length; i++)
-	{
-        var bullet = bullets[i];
-        handle_bullet(bullet);
-        
-		if (bullet.dead == 1)
-			bullets.splice(i, 1);
-        else {
-            c.beginPath();
-            c.arc(bullet.x,bullet.y,bullet.r,0,2*Math.PI);
-            c.fill();
-        }
-            
-	}
-    //draw();
-    //print();
+    handle_pbullets();
+    handle_enemies();
+	handle_bullets();
 }
 
-function draw() {
-    
+function out(o) {
+    return ((o.x + o.r < -10) || (o.y + o.r < -10) || (o.x > WIDTH + o.r + 10) || (o.y > HEIGHT + o.r + 10));
 }
 
-//update any stats
-function print() {
-    
+function collision(o1, o2) {
+    return Math.pow((o1.x - o2.x),2) + Math.pow((o1.y - o2.y),2) < Math.pow(o1.r + o2.r,2);
 }
 
-// check if objects
-function area_overlap(o1,o2)
-{
-    
-	return ((area2.x2 < area2.x1 || area2.x2 > area1.x1) &&
-	        (area2.y2 < area2.y1 || area2.y2 > area1.y1) &&
-	        (area1.x2 < area1.x1 || area1.x2 > area2.x1) &&
-	        (area1.y2 < area1.y1 || area1.y2 > area2.y1));
-}
 
-// generate random number between sn and en
-function rand(sn, en)
-{
-	return rn = Math.floor(Math.random()*(en-sn+1))+sn;
-}
 
 $( "body" ).keydown(function(e) {
     var keycode = e.which
@@ -167,82 +254,6 @@ $( "body" ).keyup(function(e) {
 	else if (keycode == 90) z = 0;	// z: shot
 });
 
-function handle_player() {
-    var s = p.speed
-    p.x += (r-l) * s;
-    p.y += (d-u) * s;
-    if ((p.x + p.r) > WIDTH) {
-        p.x = WIDTH - p.r;
-    }
-    else if (p.x < p.r) {
-        p.x = p.r;
-    }
-    
-    if ((p.y + p.r) > HEIGHT) {
-        p.y = HEIGHT - p.r;
-    }
-    else if (p.y < p.r) {
-        p.y = p.r;
-    }
-}
-
-function handle_enemy(e) {
-    e.vx += e.ax;
-    e.vy += e.ay;
-    e.x += e.vx;
-    e.y += e.vy;
-    
-    var bulletpro = e.bulletprofile;
-    
-    if (((frame - e.spawned) - bulletpro.last_spawn) > bulletpro.spawnrate) {
-        var b1 = bulletpro.bullet;
-        var b2 = {
-            "health" : b1.health,
-            "x" : e.x + b1.x,
-            "y" : e.y + b1.y,
-            "vx" : b1.vx,
-            "vy" : b1.vy,
-            "ax" : b1.ax,
-            "ay" : b1.ay,
-            "r" : b1.r
-            };
-        bullets[bullets.length]=b2
-    }
-}
-
-function handle_bullet(b) {
-    b.vx += b.ax;
-    b.vy += b.ay;
-    b.x += b.vx;
-    b.y += b.vy;
-}
-
-function spawn(enemypro) {
-    var enemypro;
-    for (var i = 0; i < enemypros.length; i++) {
-        enemypro=enemypros[i];
-        if (enemypro.upperlim < frame) {
-            enemypros.splice(i, 1);
-        }
-        else if ( frame > enemypro.lowerlim && (frame - enemypro.last_spawn) > enemypro.spawnrate) {
-            var e1 = enemypro.enemy;
-            var e2 = {
-                "health" : e1.health,
-                "x" : e1.x,
-                "y" : e1.y,
-                "vx" : e1.vx,
-                "vy" : e1.vy,
-                "ax" : e1.ax,
-                "ay" : e1.ay,
-                "r" : e1.r,
-                "bulletprofile" : e1.bulletprofile,
-                "spawned" : frame
-                };
-            enemies[enemies.length]=e2;
-            enemypro.last_spawn=frame;
-        }
-    }
-}
 
 
 function init() {
@@ -251,5 +262,25 @@ function init() {
 }
 
 function level1() {
-    enemypros[0] = standardEnemyPro;
+    var epro;
+    enemypros[0] = $.extend(true,{},standardEnemyPro);
+    epro = $.extend(true,{},standardEnemyPro);
+    epro.lowerlim = 100;
+    epro.spawnrate = 11;
+    enemypros[1] = epro;
+    
+    epro = $.extend(true,{},standardEnemyPro);
+    epro.lowerlim = 300;
+    epro.spawnrate = 10;
+    epro.vy = 10;
+    epro.ay = -1;
+    epro.enemy.bulletprofile.bullet.vx = 1;
+    epro.enemy.bulletprofile.spawnrate = 5;
+    enemypros[2] = epro;
 }
+
+$(function () {
+    init();
+    level1();
+    interval = setInterval(loop, 20); 
+});
