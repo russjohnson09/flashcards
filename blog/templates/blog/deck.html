@@ -1,0 +1,11 @@
+{% load extras %}
+Cards in deck {{deck.title}}<br/>
+<ul>
+{% for card in cards %}
+  <li><a href="{% url 'flashcards:cardview' card|id%}">{{card.front}}</a> - {{card.due|date:"m/d/Y"}}</li>
+{% endfor %}
+</ul>
+<a href="{% url 'flashcards:deck_export' deck|id %}">Export this deck</a><br/>
+<a href="{% url 'flashcards:deck_review' deck|id %}">Review due cards</a><br/>
+<a href="{% url 'flashcards:deck_import' deck|id %}">Import cards from file.</a><br/>
+<a href="{% url 'flashcards:deck_transfer' deck|id %}">Transfer cards.</a><br/>
