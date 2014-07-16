@@ -83,7 +83,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 #print(os.path.join(BASE_DIR, "public_html"))
-STATICFILES_DIRS = ( os.path.join(BASE_DIR, "public_html"),
+STATICFILES_DIRS = ( os.path.join(BASE_DIR, "static"),
 
     )
     
