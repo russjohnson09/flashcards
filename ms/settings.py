@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'flashcards',
     'bullets',
     'blog',
+    #'contacts',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -80,7 +81,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
-STATIC_URL = '/'
+STATIC_URL = '/static/'
 #print(os.path.join(BASE_DIR, "public_html"))
 STATICFILES_DIRS = ( os.path.join(BASE_DIR, "public_html"),
 
