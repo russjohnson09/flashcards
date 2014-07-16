@@ -41,7 +41,7 @@ INSTALLED_APPS = (
     'flashcards',
     'bullets',
     'blog',
-    #'contacts',
+    'contacts',
 )
 
 MIDDLEWARE_CLASSES = (

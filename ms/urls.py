@@ -8,5 +8,5 @@ urlpatterns = patterns('',
     url(r'flashcards/', include('flashcards.urls',namespace='flashcards')),
     url(r'blog/', include('blog.urls',namespace='blog')),
     url(r'bullets/', include('bullets.urls', namespace='bullets')),
-    #url(r'contacts/', include('contacts.urls', namespace='contacts')),
+    url(r'contacts/', include('contacts.urls', namespace='contacts')),
 )
