@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/1.6/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+#print(BASE_DIR)
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
@@ -78,7 +80,14 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.6/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/'
+#print(os.path.join(BASE_DIR, "public_html"))
+STATICFILES_DIRS = ( os.path.join(BASE_DIR, "public_html"),
+
+    )
+    
+for directory in STATICFILES_DIRS:
+    print(directory)
 
 # Parse database configuration from $DATABASE_URL
 import dj_database_url
@@ -90,7 +99,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 # Allow all host headers
 ALLOWED_HOSTS = ['*']
 
-#STATIC_ROOT = 'staticfiles'
+#STATIC_ROOT = 'public_html'
 
 #STATICFILES_DIRS = (
 #    os.path.join(BASE_DIR, 'static'),
