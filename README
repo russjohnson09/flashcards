@@ -1,0 +1,5 @@
+python-dev and libpq-dev 
+export PATH=/usr/local/pgsql/bin:$PATH
+
+pip install -r requirements.txt
+export PATH=/usr/local/pgsql/bin:$PATH
